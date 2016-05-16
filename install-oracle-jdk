@@ -4,6 +4,24 @@ set -e
 HERE=$(dirname "$(readlink -f "$0")")
 . "$HERE/config"
 
+function install-bin()
+{
+	NAME=$1
+	if [ -f "$BASE/$ALIAS/man/man1/$NAME.1" ]; then
+		update-alternatives --quiet --install "/usr/bin/$NAME" "$NAME" "$BASE/$ALIAS/bin/$NAME" 100 --slave "/usr/share/man/man1/$NAME.1" "$NAME.1" "$BASE/$ALIAS/man/man1/$NAME.1"
+	else
+		update-alternatives --quiet --install "/usr/bin/$NAME" "$NAME" "$BASE/$ALIAS/bin/$NAME" 100
+	fi
+}
+
+function install-lib()
+{
+	NAME=$1
+	SRC=$2
+	LOCATION=$3
+	update-alternatives --quiet --install "$LOCATION" "$NAME" "$BASE/$ALIAS/jre/lib/amd64/$SRC" 100
+}
+
 if [ ! -d "/usr/lib/jvm/$DIR" ]; then
 	cd /tmp
 	
@@ -31,56 +49,12 @@ if [ ! -d "/usr/lib/jvm/$DIR" ]; then
 
 	set +e
 
-	update-alternatives --quiet --install /usr/lib/xulrunner-addons/plugins/libjavaplugin.so xulrunner-1.9-javaplugin.so "$BASE/$ALIAS/jre/lib/amd64/libnpjp2.so" 100
-	update-alternatives --quiet --install /usr/lib/mozilla/plugins/libjavaplugin.so mozilla-javaplugin.so "$BASE/$ALIAS/jre/lib/amd64/libnpjp2.so" 100
-	
-	update-alternatives --quiet --install /usr/bin/appletviewer appletviewer "$BASE/$ALIAS/bin/appletviewer" 100 --slave /usr/share/man/man1/appletviewer.1 appletviewer.1 "$BASE/$ALIAS/man/man1/appletviewer.1"
-	update-alternatives --quiet --install /usr/bin/extcheck extcheck "$BASE/$ALIAS/bin/extcheck" 100 --slave /usr/share/man/man1/extcheck.1 extcheck.1 "$BASE/$ALIAS/man/man1/extcheck.1"
-	update-alternatives --quiet --install /usr/bin/idlj idlj "$BASE/$ALIAS/bin/idlj" 100 --slave /usr/share/man/man1/idlj.1 idlj.1 "$BASE/$ALIAS/man/man1/idlj.1"
-	update-alternatives --quiet --install /usr/bin/jar jar "$BASE/$ALIAS/bin/jar" 100 --slave /usr/share/man/man1/jar.1 jar.1 "$BASE/$ALIAS/man/man1/jar.1"
-	update-alternatives --quiet --install /usr/bin/jarsigner jarsigner "$BASE/$ALIAS/bin/jarsigner" 100 --slave /usr/share/man/man1/jarsigner.1 jarsigner.1 "$BASE/$ALIAS/man/man1/jarsigner.1"
-	update-alternatives --quiet --install /usr/bin/javac javac "$BASE/$ALIAS/bin/javac" 100 --slave /usr/share/man/man1/javac.1 javac.1 "$BASE/$ALIAS/man/man1/javac.1"
-	update-alternatives --quiet --install /usr/bin/javadoc javadoc "$BASE/$ALIAS/bin/javadoc" 100 --slave /usr/share/man/man1/javadoc.1 javadoc.1 "$BASE/$ALIAS/man/man1/javadoc.1"
-	update-alternatives --quiet --install /usr/bin/javah javah "$BASE/$ALIAS/bin/javah" 100 --slave /usr/share/man/man1/javah.1 javah.1 "$BASE/$ALIAS/man/man1/javah.1"
-	update-alternatives --quiet --install /usr/bin/javap javap "$BASE/$ALIAS/bin/javap" 100 --slave /usr/share/man/man1/javap.1 javap.1 "$BASE/$ALIAS/man/man1/javap.1"
-	update-alternatives --quiet --install /usr/bin/jconsole jconsole "$BASE/$ALIAS/bin/jconsole" 100 --slave /usr/share/man/man1/jconsole.1 jconsole.1 "$BASE/$ALIAS/man/man1/jconsole.1"
-	update-alternatives --quiet --install /usr/bin/jdb jdb "$BASE/$ALIAS/bin/jdb" 100 --slave /usr/share/man/man1/jdb.1 jdb.1 "$BASE/$ALIAS/man/man1/jdb.1"
-	update-alternatives --quiet --install /usr/bin/jhat jhat "$BASE/$ALIAS/bin/jhat" 100 --slave /usr/share/man/man1/jhat.1 jhat.1 "$BASE/$ALIAS/man/man1/jhat.1"
-	update-alternatives --quiet --install /usr/bin/jinfo jinfo "$BASE/$ALIAS/bin/jinfo" 100 --slave /usr/share/man/man1/jinfo.1 jinfo.1 "$BASE/$ALIAS/man/man1/jinfo.1"
-	update-alternatives --quiet --install /usr/bin/jmap jmap "$BASE/$ALIAS/bin/jmap" 100 --slave /usr/share/man/man1/jmap.1 jmap.1 "$BASE/$ALIAS/man/man1/jmap.1"
-	update-alternatives --quiet --install /usr/bin/jps jps "$BASE/$ALIAS/bin/jps" 100 --slave /usr/share/man/man1/jps.1 jps.1 "$BASE/$ALIAS/man/man1/jps.1"
-	update-alternatives --quiet --install /usr/bin/jrunscript jrunscript "$BASE/$ALIAS/bin/jrunscript" 100 --slave /usr/share/man/man1/jrunscript.1 jrunscript.1 "$BASE/$ALIAS/man/man1/jrunscript.1"
-	update-alternatives --quiet --install /usr/bin/jsadebugd jsadebugd "$BASE/$ALIAS/bin/jsadebugd" 100 --slave /usr/share/man/man1/jsadebugd.1 jsadebugd.1 "$BASE/$ALIAS/man/man1/jsadebugd.1"
-	update-alternatives --quiet --install /usr/bin/jstack jstack "$BASE/$ALIAS/bin/jstack" 100 --slave /usr/share/man/man1/jstack.1 jstack.1 "$BASE/$ALIAS/man/man1/jstack.1"
-	update-alternatives --quiet --install /usr/bin/jstat jstat "$BASE/$ALIAS/bin/jstat" 100 --slave /usr/share/man/man1/jstat.1 jstat.1 "$BASE/$ALIAS/man/man1/jstat.1"
-	update-alternatives --quiet --install /usr/bin/jstatd jstatd "$BASE/$ALIAS/bin/jstatd" 100 --slave /usr/share/man/man1/jstatd.1 jstatd.1 "$BASE/$ALIAS/man/man1/jstatd.1"
-	update-alternatives --quiet --install /usr/bin/native2ascii native2ascii "$BASE/$ALIAS/bin/native2ascii" 100 --slave /usr/share/man/man1/native2ascii.1 native2ascii.1 "$BASE/$ALIAS/man/man1/native2ascii.1"
-	update-alternatives --quiet --install /usr/bin/rmic rmic "$BASE/$ALIAS/bin/rmic" 100 --slave /usr/share/man/man1/rmic.1 rmic.1 "$BASE/$ALIAS/man/man1/rmic.1"
-	update-alternatives --quiet --install /usr/bin/schemagen schemagen "$BASE/$ALIAS/bin/schemagen" 100 --slave /usr/share/man/man1/schemagen.1 schemagen.1 "$BASE/$ALIAS/man/man1/schemagen.1"
-	update-alternatives --quiet --install /usr/bin/serialver serialver "$BASE/$ALIAS/bin/serialver" 100 --slave /usr/share/man/man1/serialver.1 serialver.1 "$BASE/$ALIAS/man/man1/serialver.1"
-	update-alternatives --quiet --install /usr/bin/wsgen wsgen "$BASE/$ALIAS/bin/wsgen" 100 --slave /usr/share/man/man1/wsgen.1 wsgen.1 "$BASE/$ALIAS/man/man1/wsgen.1"
-	update-alternatives --quiet --install /usr/bin/wsimport wsimport "$BASE/$ALIAS/bin/wsimport" 100 --slave /usr/share/man/man1/wsimport.1 wsimport.1 "$BASE/$ALIAS/man/man1/wsimport.1"
-	update-alternatives --quiet --install /usr/bin/xjc xjc "$BASE/$ALIAS/bin/xjc" 100 --slave /usr/share/man/man1/xjc.1 xjc.1 "$BASE/$ALIAS/man/man1/xjc.1"
-	
-	update-alternatives --quiet --install /usr/bin/java-rmi.cgi java-rmi.cgi "$BASE/$ALIAS/bin/java-rmi.cgi" 100
-	update-alternatives --quiet --install /usr/bin/ControlPanel ControlPanel "$BASE/$ALIAS/jre/bin/ControlPanel" 100
-	update-alternatives --quiet --install /usr/bin/java java "$BASE/$ALIAS/jre/bin/java" 100
-	update-alternatives --quiet --install /usr/bin/javaws javaws "$BASE/$ALIAS/jre/bin/javaws" 100
-	update-alternatives --quiet --install /usr/bin/jcontrol jcontrol "$BASE/$ALIAS/jre/bin/jcontrol" 100
-	update-alternatives --quiet --install /usr/bin/keytool keytool "$BASE/$ALIAS/jre/bin/keytool" 100
-	update-alternatives --quiet --install /usr/bin/pack200 pack200 "$BASE/$ALIAS/jre/bin/pack200" 100
-	update-alternatives --quiet --install /usr/bin/policytool policytool "$BASE/$ALIAS/jre/bin/policytool" 100
-	update-alternatives --quiet --install /usr/bin/rmid rmid "$BASE/$ALIAS/jre/bin/rmid" 100
-	update-alternatives --quiet --install /usr/bin/rmiregistry rmiregistry "$BASE/$ALIAS/jre/bin/rmiregistry" 100
-	update-alternatives --quiet --install /usr/bin/unpack200 unpack200 "$BASE/$ALIAS/jre/bin/unpack200" 100
-	update-alternatives --quiet --install /usr/bin/orbd orbd "$BASE/$ALIAS/jre/bin/orbd" 100
-	update-alternatives --quiet --install /usr/bin/servertool servertool "$BASE/$ALIAS/jre/bin/servertool" 100
-	update-alternatives --quiet --install /usr/bin/tnameserv tnameserv "$BASE/$ALIAS/jre/bin/tnameserv" 100
-	update-alternatives --quiet --install /usr/bin/jexec jexec "$BASE/$ALIAS/jre/lib/jexec" 100
-	update-alternatives --quiet --install /usr/bin/jcmd jcmd "$BASE/$ALIAS/bin/jcmd" 100
-	update-alternatives --quiet --install /usr/bin/javafxpackager javafxpackager "$BASE/$ALIAS/bin/javafxpackager" 100
-	update-alternatives --quiet --install /usr/bin/jdeps jdeps "$BASE/$ALIAS/bin/jdeps" 100
-	update-alternatives --quiet --install /usr/bin/jjs jjs "$BASE/$ALIAS/jre/bin/jjs" 100
+	for NAME in "$BASE/$ALIAS/bin/"*; do
+		install-bin $(basename "$NAME")
+	done
+
+	install-lib xulrunner-1.9-javaplugin.so libnpjp2.so /usr/lib/xulrunner-addons/plugins/libjavaplugin.so
+	install-lib mozilla-javaplugin.so libnpjp2.so /usr/lib/mozilla/plugins/libjavaplugin.so
 	
 	update-java-alternatives -s "$ALIAS"
 fi
