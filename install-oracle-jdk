@@ -22,7 +22,7 @@ function install-lib()
 	update-alternatives --quiet --install "$LOCATION" "$NAME" "$BASE/$ALIAS/jre/lib/amd64/$SRC" 100
 }
 
-if [ ! -d "/usr/lib/jvm/$DIR" ]; then
+if [ ! -d "$BASE/$DIR" ]; then
 	cd /tmp
 	
 	# Download
@@ -37,17 +37,48 @@ if [ ! -d "/usr/lib/jvm/$DIR" ]; then
 	# Move
 	mkdir -p "$BASE"
 	mv "$DIR" "$BASE"
+	chown -R root:root "$BASE/$DIR"
 
 	# Alias
 	rm -f "$BASE/$ALIAS"
 	cd "$BASE"
 	ln -sf "$DIR" "$ALIAS"
 	
-	# jinfo
-	echo "$HERE/java-8-oracle.jinfo"
-	cp -f "$HERE/java-8-oracle.jinfo" "$BASE/.java-8-oracle.jinfo"
+	# Generate jinfo
+
+	JINFO="$BASE/.java-8-oracle.jinfo"
+	rm -f "$JINFO"
+
+	# Header
+	echo "name=java-8-oracle" >> "$JINFO"
+	echo "priority=1000" >> "$JINFO"
+	echo "section=main" >> "$JINFO"
+	echo "" >> "$JINFO"
+
+	# JRE items
+	for NAME in "$BASE/$ALIAS/jre/bin/"*; do
+		BASENAME=$(basename "$NAME")
+		echo "jre $BASENAME $NAME" >> "$JINFO"
+	done
+
+	# An extra JRE item in lib
+	echo "jre jexec /usr/lib/jvm/java-8-oracle/jre/lib/jexec" >> "$JINFO"
+
+	# JDK items
+	for NAME in "$BASE/$ALIAS/bin/"*; do
+		BASENAME=$(basename "$NAME")
+		# Make sure it is not already listed as a JRE item
+		if [ ! -f "$BASE/$ALIAS/jre/bin/$BASENAME" ]; then
+			echo "jdk $BASENAME $NAME" >> "$JINFO"
+		fi
+	done
+
+	# Plugin items
+	echo "plugin mozilla-javaplugin.so /usr/lib/jvm/java-8-oracle/jre/lib/amd64/libnpjp2.so" >> "$JINFO"
 
 	set +e
+
+	# Alternatives
 
 	for NAME in "$BASE/$ALIAS/bin/"*; do
 		install-bin $(basename "$NAME")
