@@ -94,3 +94,6 @@ if [ ! -d "$BASE/$DIR" ]; then
 	
 	update-java-alternatives -s "$ALIAS"
 fi
+
+echo "Done!"
+
