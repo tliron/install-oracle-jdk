@@ -12,10 +12,11 @@ HERE=$(dirname "$(readlink -f "$0")")
 function install-bin()
 {
 	NAME=$1
+	DIR=$2
 	if [ -f "$BASE/$ALIAS/man/man1/$NAME.1" ]; then
-		update-alternatives --quiet --install "/usr/bin/$NAME" "$NAME" "$BASE/$ALIAS/bin/$NAME" 100 --slave "/usr/share/man/man1/$NAME.1" "$NAME.1" "$BASE/$ALIAS/man/man1/$NAME.1"
+		update-alternatives --quiet --install "/usr/bin/$NAME" "$NAME" "$BASE/$ALIAS/$DIR/$NAME" 100 --slave "/usr/share/man/man1/$NAME.1" "$NAME.1" "$BASE/$ALIAS/man/man1/$NAME.1"
 	else
-		update-alternatives --quiet --install "/usr/bin/$NAME" "$NAME" "$BASE/$ALIAS/bin/$NAME" 100
+		update-alternatives --quiet --install "/usr/bin/$NAME" "$NAME" "$BASE/$ALIAS/$DIR/$NAME" 100
 	fi
 }
 
@@ -86,12 +87,18 @@ if [ ! -d "$BASE/$DIR" ]; then
 	# Alternatives
 
 	for NAME in "$BASE/$ALIAS/bin/"*; do
-		install-bin $(basename "$NAME")
+		install-bin $(basename "$NAME") bin
 	done
+
+	for NAME in "$BASE/$ALIAS/jre/bin/"*; do
+		install-bin $(basename "$NAME") jre/bin
+	done
+
+	install-bin jexec jre/lib
 
 	install-lib xulrunner-1.9-javaplugin.so libnpjp2.so /usr/lib/xulrunner-addons/plugins/libjavaplugin.so
 	install-lib mozilla-javaplugin.so libnpjp2.so /usr/lib/mozilla/plugins/libjavaplugin.so
-	
+
 	update-java-alternatives -s "$ALIAS"
 fi
 
