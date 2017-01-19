@@ -14,9 +14,12 @@ function install-bin()
 	NAME=$1
 	DIR=$2
 	if [ -f "$BASE/$ALIAS/man/man1/$NAME.1" ]; then
-		update-alternatives --quiet --install "/usr/bin/$NAME" "$NAME" "$BASE/$ALIAS/$DIR/$NAME" 100 --slave "/usr/share/man/man1/$NAME.1" "$NAME.1" "$BASE/$ALIAS/man/man1/$NAME.1"
+		update-alternatives --quiet \
+			--install "/usr/bin/$NAME" "$NAME" "$BASE/$ALIAS/$DIR/$NAME" 100 \
+			--slave "/usr/share/man/man1/$NAME.1" "$NAME.1" "$BASE/$ALIAS/man/man1/$NAME.1"
 	else
-		update-alternatives --quiet --install "/usr/bin/$NAME" "$NAME" "$BASE/$ALIAS/$DIR/$NAME" 100
+		update-alternatives --quiet \
+			--install "/usr/bin/$NAME" "$NAME" "$BASE/$ALIAS/$DIR/$NAME" 100
 	fi
 }
 
@@ -25,7 +28,8 @@ function install-lib()
 	NAME=$1
 	SRC=$2
 	LOCATION=$3
-	update-alternatives --quiet --install "$LOCATION" "$NAME" "$BASE/$ALIAS/jre/lib/amd64/$SRC" 100
+	update-alternatives --quiet \
+		--install "$LOCATION" "$NAME" "$BASE/$ALIAS/jre/lib/amd64/$SRC" 100
 }
 
 if [ ! -d "$BASE/$DIR" ]; then
@@ -33,7 +37,9 @@ if [ ! -d "$BASE/$DIR" ]; then
 	
 	# Download
 	if [ ! -f "$ARCHIVE.tar.gz" ]; then
-		wget --no-check-certificate -c --header "Cookie: oraclelicense=accept-securebackup-cookie" "http://download.oracle.com/otn-pub/java/jdk/$SITE/$ARCHIVE.tar.gz"
+		wget --no-check-certificate --continue \
+			--header "Cookie: oraclelicense=accept-securebackup-cookie" \
+			"http://download.oracle.com/otn-pub/java/jdk/$SITE/$ARCHIVE.tar.gz"
 	fi
 
 	# Extract
