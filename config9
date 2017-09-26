@@ -1,0 +1,7 @@
+DIR=jdk-9
+ARCHIVE=jdk-9_linux-x64_bin
+SITE=9+181
+
+ALIAS=java-9-oracle
+BASE=/usr/lib/jvm
+

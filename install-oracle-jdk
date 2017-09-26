@@ -1,13 +1,15 @@
 #!/bin/bash
 set -e
 
+SERIES=${1:-9}
+
 if [ "$EUID" -ne 0 ]; then
   echo "Run this script as root"
   exit 1
 fi
 
 HERE=$(dirname "$(readlink -f "$0")")
-. "$HERE/config"
+. "$HERE/config$SERIES"
 
 function install-bin()
 {
@@ -50,63 +52,61 @@ if [ ! -d "$BASE/$DIR" ]; then
 	mkdir -p "$BASE"
 	mv "$DIR" "$BASE"
 	chown -R root:root "$BASE/$DIR"
+fi
 
-	# Alias
-	rm -f "$BASE/$ALIAS"
-	cd "$BASE"
-	ln -sf "$DIR" "$ALIAS"
-	
-	# Generate jinfo
+# Alias
+rm -f "$BASE/$ALIAS"
+cd "$BASE"
+ln -sf "$DIR" "$ALIAS"
 
-	JINFO="$BASE/.java-8-oracle.jinfo"
-	rm -f "$JINFO"
+# Generate jinfo
 
-	# Header
-	echo "name=java-8-oracle" >> "$JINFO"
-	echo "priority=1000" >> "$JINFO"
-	echo "section=main" >> "$JINFO"
-	echo "" >> "$JINFO"
+JINFO="$BASE/.$ALIAS.jinfo"
+rm -f "$JINFO"
 
-	# JRE items
+# Header
+echo "name=$ALIAS" >> "$JINFO"
+echo "priority=1000" >> "$JINFO"
+echo "section=main" >> "$JINFO"
+echo "" >> "$JINFO"
+
+# JRE items
+if [ -d "$BASE/$ALIAS/jre" ]; then
 	for NAME in "$BASE/$ALIAS/jre/bin/"*; do
 		BASENAME=$(basename "$NAME")
 		echo "jre $BASENAME $NAME" >> "$JINFO"
 	done
 
 	# An extra JRE item in lib
-	echo "jre jexec /usr/lib/jvm/java-8-oracle/jre/lib/jexec" >> "$JINFO"
-
-	# JDK items
-	for NAME in "$BASE/$ALIAS/bin/"*; do
-		BASENAME=$(basename "$NAME")
-		# Make sure it is not already listed as a JRE item
-		if [ ! -f "$BASE/$ALIAS/jre/bin/$BASENAME" ]; then
-			echo "jdk $BASENAME $NAME" >> "$JINFO"
-		fi
-	done
+	echo "jre jexec /usr/lib/jvm/$ALIAS/jre/lib/jexec" >> "$JINFO"
 
 	# Plugin items
-	echo "plugin mozilla-javaplugin.so /usr/lib/jvm/java-8-oracle/jre/lib/amd64/libnpjp2.so" >> "$JINFO"
+	echo "plugin mozilla-javaplugin.so /usr/lib/jvm/$ALIAS/jre/lib/amd64/libnpjp2.so" >> "$JINFO"
 
-	set +e
-
-	# Alternatives
-
-	for NAME in "$BASE/$ALIAS/bin/"*; do
-		install-bin $(basename "$NAME") bin
-	done
+	install-bin jexec jre/lib
 
 	for NAME in "$BASE/$ALIAS/jre/bin/"*; do
 		install-bin $(basename "$NAME") jre/bin
 	done
 
-	install-bin jexec jre/lib
-
 	install-lib xulrunner-1.9-javaplugin.so libnpjp2.so /usr/lib/xulrunner-addons/plugins/libjavaplugin.so
 	install-lib mozilla-javaplugin.so libnpjp2.so /usr/lib/mozilla/plugins/libjavaplugin.so
-
-	update-java-alternatives -s "$ALIAS"
 fi
+
+# JDK items
+for NAME in "$BASE/$ALIAS/bin/"*; do
+	BASENAME=$(basename "$NAME")
+	# Make sure it is not already listed as a JRE item
+	if [ ! -f "$BASE/$ALIAS/jre/bin/$BASENAME" ]; then
+		echo "jdk $BASENAME $NAME" >> "$JINFO"
+	fi
+done
+
+for NAME in "$BASE/$ALIAS/bin/"*; do
+	install-bin $(basename "$NAME") bin
+done
+
+update-java-alternatives -s "$ALIAS"
 
 echo "Done!"
 
