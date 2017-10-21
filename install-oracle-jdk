@@ -89,8 +89,12 @@ if [ -d "$BASE/$ALIAS/jre" ]; then
 		install-bin $(basename "$NAME") jre/bin
 	done
 
-	install-lib xulrunner-1.9-javaplugin.so libnpjp2.so /usr/lib/xulrunner-addons/plugins/libjavaplugin.so
-	install-lib mozilla-javaplugin.so libnpjp2.so /usr/lib/mozilla/plugins/libjavaplugin.so
+	if [ -d /usr/lib/xulrunner-addons/plugins ]; then
+		install-lib xulrunner-1.9-javaplugin.so libnpjp2.so /usr/lib/xulrunner-addons/plugins/libjavaplugin.so
+	fi
+	if [ -d /usr/lib/mozilla/plugins ]; then
+		install-lib mozilla-javaplugin.so libnpjp2.so /usr/lib/mozilla/plugins/libjavaplugin.so
+	fi
 fi
 
 # JDK items
